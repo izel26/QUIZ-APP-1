@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Quiz App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f4;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      margin: 10px 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #options button {
+      display: block;
+      width: 100%;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Math Quiz</h1>
+    <div id="category">
+      <h2>Select Difficulty</h2>
+      <button onclick="startQuiz('easy')">Easy</button>
+      <button onclick="startQuiz('medium')">Medium</button>
+      <button onclick="startQuiz('hard')">Hard</button>
+    </div>
+    <div id="quiz" class="hidden">
+      <h2 id="question"></h2>
+      <div id="options"></div>
+      <button id="next" class="hidden" onclick="nextQuestion()">Next</button>
+    </div>
+    <div id="result" class="hidden">
+      <h2>Your Score: <span id="score"></span></h2>
+      <button onclick="restartQuiz()">Restart</button>
+    </div>
+  </div>
+  <script>
+    const questions = {
+      easy: [
+        { question: "5 + 3 =", options: [6, 7, 8, 9], answer: 8 },
+        { question: "10 - 4 =", options: [5, 6, 7, 8], answer: 6 },
+        { question: "7 + 2 =", options: [8, 9, 10, 11], answer: 9 },
+        { question: "12 - 5 =", options: [6, 7, 8, 9], answer: 7 },
+        { question: "3 × 2 =", options: [5, 6, 7, 8], answer: 6 },
+        { question: "8 ÷ 2 =", options: [3, 4, 5, 6], answer: 4 },
+        { question: "6 + 4 =", options: [10, 11, 12, 13], answer: 10 },
+        { question: "9 - 3 =", options: [5, 6, 7, 8], answer: 6 },
+        { question: "2 × 3 =", options: [5, 6, 7, 8], answer: 6 },
+        { question: "10 ÷ 5 =", options: [1, 2, 3, 4], answer: 2 },
+      ],
+      medium: [
+        { question: "12 × 3 =", options: [36, 34, 38, 32], answer: 36 },
+        { question: "50 ÷ 2 =", options: [20, 30, 25, 35], answer: 25 },
+        { question: "25 × 2 =", options: [40, 45, 50, 55], answer: 50 },
+        { question: "18 ÷ 3 =", options: [6, 7, 8, 9], answer: 6 },
+        { question: "15 + 25 =", options: [35, 40, 45, 50], answer: 40 },
+        { question: "45 - 20 =", options: [20, 25, 30, 35], answer: 25 },
+        { question: "32 ÷ 4 =", options: [6, 7, 8, 9], answer: 8 },
+        { question: "7 × 6 =", options: [40, 42, 44, 46], answer: 42 },
+        { question: "24 ÷ 8 =", options: [2, 3, 4, 5], answer: 3 },
+        { question: "40 + 35 =", options: [70, 75, 80, 85], answer: 75 },
+      ],
+      hard: [
+        { question: "25 × 4 =", options: [100, 120, 90, 80], answer: 100 },
+        { question: "144 ÷ 12 =", options: [10, 11, 12, 13], answer: 12 },
+        { question: "75 × 3 =", options: [200, 210, 220, 225], answer: 225 },
+        { question: "96 ÷ 8 =", options: [10, 11, 12, 13], answer: 12 },
+        { question: "56 × 2 =", options: [100, 110, 112, 120], answer: 112 },
+        { question: "90 ÷ 5 =", options: [16, 17, 18, 19], answer: 18 },
+        { question: "15 × 15 =", options: [200, 210, 225, 230], answer: 225 },
+        { question: "81 ÷ 9 =", options: [8, 9, 10, 11], answer: 9 },
+        { question: "33 × 3 =", options: [96, 98, 99, 100], answer: 99 },
+        { question: "64 ÷ 4 =", options: [14, 15, 16, 17], answer: 16 },
+      ],
+    };
+
+    let currentCategory = null;
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function startQuiz(category) {
+      currentCategory = category;
+      currentQuestionIndex = 0;
+      score = 0;
+
+      document.getElementById("category").classList.add("hidden");
+      document.getElementById("quiz").classList.remove("hidden");
+
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const currentQuestion = questions[currentCategory][currentQuestionIndex];
+      document.getElementById("question").textContent = currentQuestion.question;
+
+      const optionsContainer = document.getElementById("options");
+      optionsContainer.innerHTML = "";
+
+      currentQuestion.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.textContent = option;
+        button.onclick = () => checkAnswer(option);
+        optionsContainer.appendChild(button);
+      });
+    }
+
+    function checkAnswer(selected) {
+      const currentQuestion = questions[currentCategory][currentQuestionIndex];
+      if (selected === currentQuestion.answer) {
+        score++;
+      }
+
+      document.getElementById("next").classList.remove("hidden");
+      Array.from(document.getElementById("options").children).forEach((btn) =>
+        btn.setAttribute("disabled", true)
+      );
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions[currentCategory].length) {
+        showQuestion();
+        document.getElementById("next").classList.add("hidden");
+      } else {
+        endQuiz();
+      }
+    }
+
+    function endQuiz() {
+      document.getElementById("quiz").classList.add("hidden");
+      document.getElementById("result").classList.remove("hidden");
+      document.getElementById("score").textContent = `${score} / ${questions[currentCategory].length}`;
+    }
+
+    function restartQuiz() {
+      document.getElementById("result").classList.add("hidden");
+      document.getElementById("category").classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
