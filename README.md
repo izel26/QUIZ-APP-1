@@ -9,7 +9,7 @@ A simple Math quiz application with differing difficulties where users can answe
 - Show the correct answers and the total score at the end.  
 
 ## Technologies  
-- HTML, CSS.
+- HTML, CSS. JAVASCRIPT
 
 Team Members:
 Carandnag, Edward Niño O.
